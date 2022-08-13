@@ -32,7 +32,7 @@ const initialCoinsState = {
 // actions
 export const fetchCoins = createAsyncThunk('coins/fetchCoins', async searchParams => {
 	const {
-		coinsVsCurrency = 'usd',
+		coinsVsCurrency,
 		coinsOrder = 'market_cap_desc',
 		coinsPerPage = 50,
 		coinsCurrentPage,
@@ -71,11 +71,11 @@ export const fetchCoinsLength = createAsyncThunk('coins/fetchCoinsLength', async
 	}
 });
 
-export const fetchCoinById = createAsyncThunk('coins/fetchCoinById', async id => {
+export const fetchCoinById = createAsyncThunk('coins/fetchCoinById', async ({ id, currency }) => {
 	const selectedCoinUrl = `${coinsBaseUrl}/${id}`;
 	try {
 		const response = await fetchData(selectedCoinUrl, coinsOption);
-		const processResponse = processCoinData(response, 'usd');
+		const processResponse = processCoinData(response, currency);
 		return processResponse;
 	} catch (error) {
 		console.log(error);
@@ -83,21 +83,18 @@ export const fetchCoinById = createAsyncThunk('coins/fetchCoinById', async id =>
 	}
 });
 
-export const fetchCoinHistory = createAsyncThunk(
-	'coins/fetchCoinHistory',
-	async ({ id, currency = 'usd', days = 360 }) => {
-		const selectedCoinHistoryUrl = `${coinsBaseUrl}/${id}/market_chart?vs_currency=${currency}&days=${days}`;
-		try {
-			const response = await fetchData(selectedCoinHistoryUrl, coinsOption);
-			const processResponse = processHistoricalData(response);
+export const fetchCoinHistory = createAsyncThunk('coins/fetchCoinHistory', async ({ id, currency, days }) => {
+	const selectedCoinHistoryUrl = `${coinsBaseUrl}/${id}/market_chart?vs_currency=${currency}&days=${days}`;
+	try {
+		const response = await fetchData(selectedCoinHistoryUrl, coinsOption);
+		const processResponse = processHistoricalData(response);
 
-			return processResponse;
-		} catch (error) {
-			console.log(error);
-			throw error;
-		}
-	},
-);
+		return processResponse;
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+});
 
 export const coinsSlice = createSlice({
 	name: 'coins',

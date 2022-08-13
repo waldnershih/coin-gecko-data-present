@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { currencyConverter } from '../utils/currencyConverter';
 
-const BasicLineChart = ({ data }) => {
+const CoinLineChart = ({ data, currency }) => {
 	return (
 		<ResponsiveContainer width="99%" aspect={1.5}>
 			<LineChart
@@ -19,10 +20,11 @@ const BasicLineChart = ({ data }) => {
 				<CartesianGrid strokeDasharray="3 3" horizontal="true" vertical="" />
 				<XAxis dataKey="date" minTickGap={60} />
 				<YAxis
+					width={70}
 					domain={['auto', 'auto']}
 					tickFormatter={value => {
 						if (!value) return '';
-						return `$${value.toLocaleString(undefined, {
+						return `${currencyConverter(currency)}${value.toLocaleString(undefined, {
 							minimumFractionDigits: 2,
 						})}`;
 					}}
@@ -42,7 +44,7 @@ const BasicLineChart = ({ data }) => {
 					}}
 					formatter={value => {
 						if (!value) return '';
-						return [`$${parseInt(value)?.toFixed(2)}`, 'Price'];
+						return [`${currencyConverter(currency)}${parseInt(value)?.toFixed(2)}`, 'Price'];
 					}}
 					labelFormatter={(value, props) => {
 						// get empty array when clicking border of chart
@@ -56,4 +58,4 @@ const BasicLineChart = ({ data }) => {
 	);
 };
 
-export default BasicLineChart;
+export default CoinLineChart;
