@@ -1,5 +1,5 @@
-import React from "react";
-import { Pagination } from "@mui/material";
+import React from 'react';
+import { Pagination } from '@mui/material';
 
 // Customise the Pagination component based on the Material UI Pagination component.
 const BasicPagination = ({ count, handleOnChange, currentPage }) => {

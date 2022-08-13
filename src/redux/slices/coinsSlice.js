@@ -1,12 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import {
-	fetchData,
-	processCoinsData,
-	processCoinData,
-	processHistoricalData,
-	baseUrl,
-} from '../apis';
+import { fetchData, processCoinsData, processCoinData, processHistoricalData, baseUrl } from '../apis';
 
 const coinsBaseUrl = `${baseUrl}/coins`;
 

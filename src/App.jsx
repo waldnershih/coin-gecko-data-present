@@ -1,13 +1,13 @@
-import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
-import { Home, PageNotFound, Coins, CoinDetail } from "./pages";
+import React from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { Home, PageNotFound, Coins, CoinDetail } from './pages';
 import {
 	Header,
 	// Footer,
 	ScrollToTop,
-} from "./components";
-import { Box, Divider } from "@mui/material";
-import { LIGHT_BLACK } from "./styles/colors";
+} from './components';
+import { Box, Divider } from '@mui/material';
+import { LIGHT_BLACK } from './styles/colors';
 
 const App = () => {
 	return (

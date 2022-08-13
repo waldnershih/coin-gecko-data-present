@@ -1,14 +1,5 @@
 import React, { isValidElement } from 'react';
-import {
-	Typography,
-	Paper,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-} from '@mui/material';
+import { Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 // Customise the Table component based on the Material UI Table component.
 // rows: [{id: {value, handleOnCellClick || null}, cellName: {value, handleOnCellClick || null}}]
@@ -50,9 +41,7 @@ const BasicTable = ({ rows, columns }) => {
 												key={column.id}
 												align={column.align}
 												onClick={
-													handleOnCellClick
-														? () => handleOnCellClick(row.id?.value)
-														: null
+													handleOnCellClick ? () => handleOnCellClick(row.id?.value) : null
 												}
 												sx={[
 													handleOnCellClick && {
@@ -68,9 +57,7 @@ const BasicTable = ({ rows, columns }) => {
 													<Typography
 														variant="body1"
 														sx={{
-															color:
-																column.getColor &&
-																column.getColor(value),
+															color: column.getColor && column.getColor(value),
 														}}
 													>
 														{column.format && typeof value === 'number'

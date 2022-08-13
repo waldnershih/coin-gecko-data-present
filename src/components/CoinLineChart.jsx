@@ -1,15 +1,6 @@
 import React from 'react';
 
-import {
-	LineChart,
-	Line,
-	XAxis,
-	YAxis,
-	Tooltip,
-	CartesianGrid,
-	Legend,
-	ResponsiveContainer,
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
 const BasicLineChart = ({ data }) => {
 	return (
@@ -59,13 +50,7 @@ const BasicLineChart = ({ data }) => {
 						return props[0].payload.label;
 					}}
 				/>
-				<Line
-					dataKey="price"
-					type="monotone"
-					stroke="#2196f3"
-					dot={false}
-					activeDot={{ r: 6 }}
-				/>
+				<Line dataKey="price" type="monotone" stroke="#2196f3" dot={false} activeDot={{ r: 6 }} />
 			</LineChart>
 		</ResponsiveContainer>
 	);

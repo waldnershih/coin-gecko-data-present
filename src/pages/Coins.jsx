@@ -73,9 +73,7 @@ const Coins = () => {
 	const dispatch = useDispatch();
 
 	let query = useQuery();
-	const { coins, allCoinsLength, coinsLoading, allCoinsLengthLoading } = useSelector(
-		state => state.coins,
-	);
+	const { coins, allCoinsLength, coinsLoading, allCoinsLengthLoading } = useSelector(state => state.coins);
 
 	// const [coinsCategory, setCoinsCategory] = useState("");
 	// const [coinsVsCurrency, setCoinsVsCurrency] = useState("usd");

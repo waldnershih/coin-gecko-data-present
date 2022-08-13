@@ -1,19 +1,19 @@
-import React from "react";
-import { Box } from "@mui/material";
+import React from 'react';
+import { Box } from '@mui/material';
 
 // fixed the maxWidth for all pages
-const PageWrapper = (Components) =>
+const PageWrapper = Components =>
 	function HOC() {
 		return (
 			<Box
 				sx={{
-					display: "flex",
+					display: 'flex',
 					// flexDirection: "column",
-					alignItems: "center",
-					justifyContent: "center",
+					alignItems: 'center',
+					justifyContent: 'center',
 				}}
 			>
-				<Box sx={{ flex: 1, maxWidth: "1440px" }}>
+				<Box sx={{ flex: 1, maxWidth: '1440px' }}>
 					<Components />
 				</Box>
 			</Box>

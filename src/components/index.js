@@ -7,13 +7,4 @@ import ScrollToTop from './ScrollToTop';
 import Loading from './Loading';
 import CoinLineChart from './CoinLineChart';
 
-export {
-	CoinTable,
-	BasicPagination,
-	Header,
-	Footer,
-	DataNotFound,
-	ScrollToTop,
-	Loading,
-	CoinLineChart,
-};
+export { CoinTable, BasicPagination, Header, Footer, DataNotFound, ScrollToTop, Loading, CoinLineChart };
