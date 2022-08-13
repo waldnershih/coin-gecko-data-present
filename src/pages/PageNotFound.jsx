@@ -1,17 +1,19 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Box, Button, Typography } from "@mui/material";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Box, Button, Typography } from '@mui/material';
+
+import { PageWrapper } from '../wrapper';
 
 const NotFound = () => {
 	return (
 		<Box
 			sx={{
-				minHeight: "70vh",
-				width: "100%",
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
-				flexDirection: "column",
+				minHeight: '70vh',
+				width: '100%',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				flexDirection: 'column',
 			}}
 		>
 			<Typography variant="h4" mb="20px">
@@ -24,4 +26,4 @@ const NotFound = () => {
 	);
 };
 
-export default NotFound;
+export default PageWrapper(NotFound);

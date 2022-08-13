@@ -1,21 +1,23 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
-import { LIGHT_BLACK } from "../styles/colors";
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import { LIGHT_BLACK } from '../styles/colors';
 
 const Footer = () => {
 	return (
 		<Box
 			sx={{
-				height: "15vh",
-				width: "100%",
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
+				height: '15vh',
+				width: '100%',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
 				backgroundColor: LIGHT_BLACK,
-				color: "white",
+				color: 'white',
 			}}
 		>
-			<Typography variant="h6">Footer</Typography>
+			<Box sx={{ maxWidth: '1440px' }}>
+				<Typography variant="h6">Footer</Typography>
+			</Box>
 		</Box>
 	);
 };

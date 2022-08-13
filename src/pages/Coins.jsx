@@ -1,95 +1,81 @@
-import React, { useMemo, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCoins, fetchCoinsLength } from "../redux/slices/coinsSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCoins, fetchCoinsLength } from '../redux/slices/coinsSlice';
 
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from '@mui/material';
 
-import {
-	BasicPagination,
-	BasicTable,
-	DataNotFound,
-	Loading,
-} from "../components";
-import useQuery from "../hooks/useQuery";
-import { DARK_GRAY } from "../styles/colors";
+import { BasicPagination, CoinTable, DataNotFound, Loading } from '../components';
+import useQuery from '../hooks/useQuery';
+import { DARK_GRAY } from '../styles/colors';
+import { PageWrapper } from '../wrapper';
 
 // Define the columns with specific rules for the table.
 const columns = [
-	{ id: "market_cap_rank", label: "Rank", minWidth: 100, align: "center" },
-	{ id: "name", label: "Coin", minWidth: 170, align: "left" },
+	{ id: 'market_cap_rank', label: 'Rank', minWidth: 100, align: 'center' },
+	{ id: 'name', label: 'Coin', minWidth: 170, align: 'left' },
 	{
-		id: "current_price",
-		label: "Price",
+		id: 'current_price',
+		label: 'Price',
 		minWidth: 170,
-		align: "right",
-		format: (value) =>
-			value > 0.000001 ? `$${value}` : `${value.toFixed(12)}`, // Formatting if value is number.
+		align: 'right',
+		format: value => (value > 0.000001 ? `$${value}` : `${value.toFixed(12)}`), // Formatting if value is number.
 	},
 	{
-		id: "price_change_percentage_1h_in_currency",
-		label: "1h",
+		id: 'price_change_percentage_1h_in_currency',
+		label: '1h',
 		minWidth: 100,
-		align: "right",
-		getColor: (value) =>
-			value === "N/A" ? "" : value >= 0 ? "success.light" : "error.light",
-		format: (value) => `${value.toFixed(1)}%`,
+		align: 'right',
+		getColor: value => (value === 'N/A' ? '' : value >= 0 ? 'success.light' : 'error.light'),
+		format: value => `${value.toFixed(1)}%`,
 	},
 	{
-		id: "price_change_percentage_24h_in_currency",
-		label: "24h",
+		id: 'price_change_percentage_24h_in_currency',
+		label: '24h',
 		minWidth: 100,
-		align: "right",
-		getColor: (value) =>
-			value === "N/A" ? "" : value >= 0 ? "success.light" : "error.light",
-		format: (value) => `${value.toFixed(1)}%`,
+		align: 'right',
+		getColor: value => (value === 'N/A' ? '' : value >= 0 ? 'success.light' : 'error.light'),
+		format: value => `${value.toFixed(1)}%`,
 	},
 	{
-		id: "price_change_percentage_7d_in_currency",
-		label: "7d",
+		id: 'price_change_percentage_7d_in_currency',
+		label: '7d',
 		minWidth: 100,
-		align: "right",
-		getColor: (value) =>
-			value === "N/A" ? "" : value >= 0 ? "success.light" : "error.light",
-		format: (value) => `${value.toFixed(1)}%`,
+		align: 'right',
+		getColor: value => (value === 'N/A' ? '' : value >= 0 ? 'success.light' : 'error.light'),
+		format: value => `${value.toFixed(1)}%`,
 	},
 
 	{
-		id: "total_volume",
-		label: "24h Volume",
+		id: 'total_volume',
+		label: '24h Volume',
 		minWidth: 170,
-		align: "right",
-		format: (value) => `$${value.toLocaleString("en-US")}`,
+		align: 'right',
+		format: value => `$${value.toLocaleString('en-US')}`,
 	},
 	{
-		id: "market_cap",
-		label: "Mkt Cap",
+		id: 'market_cap',
+		label: 'Mkt Cap',
 		minWidth: 170,
-		align: "right",
-		format: (value) => `$${value.toLocaleString("en-US")}`,
-	},
-	{
-		id: "fully_diluted_valuation",
-		label: "FDV",
-		minWidth: 170,
-		align: "right",
-		format: (value) => `$${value.toLocaleString("en-US")}`,
+		align: 'right',
+		format: value => `$${value.toLocaleString('en-US')}`,
 	},
 ];
 
 // Define the default sorting rules for the table.
 const coinsPerPage = 50;
-const coinsOrder = "market_cap_desc";
-const coinsCategory = "";
+const coinsOrder = 'market_cap_desc';
+const coinsCategory = '';
 
 const Coins = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
 	let query = useQuery();
-	const { coins, allCoinsLength, coinsLoading, allCoinsLengthLoading } =
-		useSelector((state) => state.coins);
+	const { coins, allCoinsLength, coinsLoading, allCoinsLengthLoading } = useSelector(
+		state => state.coins,
+	);
 
 	// const [coinsCategory, setCoinsCategory] = useState("");
 	// const [coinsVsCurrency, setCoinsVsCurrency] = useState("usd");
@@ -101,7 +87,7 @@ const Coins = () => {
 	}, [dispatch]);
 
 	useEffect(() => {
-		setCoinsCurrentPage(parseInt(query.get("page") || 1));
+		setCoinsCurrentPage(parseInt(query.get('page') || 1));
 	}, [query, dispatch]);
 
 	useEffect(() => {
@@ -112,7 +98,7 @@ const Coins = () => {
 				coinsCategory,
 				coinsOrder,
 				coinsCurrentPage,
-			})
+			}),
 		);
 	}, [coinsCurrentPage, dispatch]);
 
@@ -121,16 +107,16 @@ const Coins = () => {
 	};
 
 	// Prevent keep rerender
-	const handleOnValueClick = useMemo(
-		() => (rowId) => {
+	const handleOnCellClick = useMemo(
+		() => rowId => {
 			navigate(`/coins/${rowId}`);
 		},
-		[navigate]
+		[navigate],
 	);
 
-	// Process data to display in table, trigger only when handleOnValueClick is called and coins is updated.
+	// Process data to display in table, trigger only when handleOnCellClick is called and coins is updated.
 	const createData = useMemo(
-		() => (coin) => {
+		() => coin => {
 			const {
 				id,
 				name,
@@ -143,19 +129,18 @@ const Coins = () => {
 				price_change_percentage_7d_in_currency,
 				total_volume,
 				market_cap,
-				fully_diluted_valuation,
 			} = coin;
 
 			// Combine image, name, symbol to name react-node
 			const nameNode = (
 				<Box
 					sx={{
-						display: "flex",
-						alignItems: "center",
+						display: 'flex',
+						alignItems: 'center',
 						img: {
-							width: "32px",
-							height: "32x",
-							marginRight: "10px",
+							width: '32px',
+							height: '32x',
+							marginRight: '10px',
 						},
 					}}
 				>
@@ -164,7 +149,7 @@ const Coins = () => {
 						variant="body1"
 						ml={2}
 						sx={{
-							fontWeight: "bold",
+							fontWeight: 'bold',
 						}}
 					>
 						{name}
@@ -181,62 +166,59 @@ const Coins = () => {
 				</Box>
 			);
 
-			// Handle missing data
+			// Handle cell onClick event
 			return {
 				id: { value: id },
 				name: {
-					value: nameNode || "N/A",
-					handleOnValueClick: handleOnValueClick,
+					value: nameNode,
+					handleOnCellClick: handleOnCellClick,
 				},
-				market_cap_rank: { value: market_cap_rank || "N/A" },
-				current_price: { value: current_price || "0.00" },
+				market_cap_rank: { value: market_cap_rank },
+				current_price: { value: current_price },
 				price_change_percentage_1h_in_currency: {
-					value: price_change_percentage_1h_in_currency || "N/A",
+					value: price_change_percentage_1h_in_currency,
 				},
 				price_change_percentage_24h_in_currency: {
-					value: price_change_percentage_24h_in_currency || "N/A",
+					value: price_change_percentage_24h_in_currency,
 				},
 				price_change_percentage_7d_in_currency: {
-					value: price_change_percentage_7d_in_currency || "N/A",
+					value: price_change_percentage_7d_in_currency,
 				},
-				total_volume: { value: total_volume || "N/A" },
-				market_cap: { value: market_cap || "N/A" },
-				fully_diluted_valuation: {
-					value: fully_diluted_valuation || "N/A",
-				},
+				total_volume: { value: total_volume },
+				market_cap: { value: market_cap },
 			};
 		},
-		[handleOnValueClick]
+		[handleOnCellClick],
 	);
 
 	// Process data to display in table, trigger only when createData is called and coins is updated.
 	let rows = useMemo(() => {
-		return coins.map((coin) => createData(coin));
+		return coins.map(coin => createData(coin));
 	}, [coins, createData]);
 
 	return (
 		// evaluate loading first and then length of data
 		<Box>
 			{allCoinsLengthLoading || coinsLoading ? (
-				<Loading height={"70vh"} width={"100%"} />
+				<Loading height={'70vh'} width={'100%'} />
 			) : rows.length > 0 ? (
 				<Box
 					sx={{
-						minHeight: "70vh",
-						width: "100%",
-						overflow: "hidden",
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
+						minHeight: '70vh',
+						width: '100%',
+						overflow: 'hidden',
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
 					}}
 				>
 					<Box
 						p="20px"
 						sx={{
-							width: "100%",
+							width: '100%',
 						}}
 					>
-						<BasicTable rows={rows} columns={columns} />
+						<CoinTable rows={rows} columns={columns} />
 					</Box>
 
 					<Box pb="20px">
@@ -250,12 +232,12 @@ const Coins = () => {
 			) : (
 				<Box
 					sx={{
-						minHeight: "70vh",
-						width: "100%",
-						display: "flex",
-						justifyContent: "center",
-						alignItems: "center",
-						flexDirection: "column",
+						minHeight: '70vh',
+						width: '100%',
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						flexDirection: 'column',
 					}}
 				>
 					<DataNotFound />
@@ -267,4 +249,4 @@ const Coins = () => {
 	);
 };
 
-export default Coins;
+export default PageWrapper(Coins);
