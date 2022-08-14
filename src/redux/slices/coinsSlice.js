@@ -132,7 +132,14 @@ export const fetchSearchCoinIds = createAsyncThunk('coins/fetchSearchCoinIds', a
 export const coinsSlice = createSlice({
 	name: 'coins',
 	initialState: initialCoinsState,
-	reducers: {},
+	reducers: {
+		initialiseSearchCoinIds: (state, _) => {
+			state.searchCoinIds = [];
+			state.searchCoinIdsLoading = false;
+			state.searchCoinIdsError = '';
+			state.searchCoinIdsSuccess = false;
+		},
+	},
 	extraReducers: {
 		// fetch coins
 		[fetchCoins.pending]: (state, _) => {
@@ -222,5 +229,7 @@ export const coinsSlice = createSlice({
 		},
 	},
 });
+
+export const { initialiseSearchCoinIds } = coinsSlice.actions;
 
 export const coinsReducer = coinsSlice.reducer;

@@ -53,7 +53,6 @@ const Home = () => {
 
 	useEffect(() => {
 		if (!searchCoinIdsSuccess) return;
-
 		// always search from the first page
 		setCoinsParams({ coinIds: searchCoinIds, coinsCurrentPage: 1 });
 	}, [searchCoinIds, searchCoinIdsSuccess]);

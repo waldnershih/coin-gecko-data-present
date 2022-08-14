@@ -1,5 +1,5 @@
 import React, { isValidElement, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
 	Box,
@@ -17,6 +17,7 @@ import { PURPLE_GRAY, DARK_GRAY, BLUE_GRAY, GRAY } from '../styles/colors';
 import { currencyConverter } from '../utils/currencyConverter';
 import { ArrowDropUp as ArrowDropUpIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
 import { BasicPagination } from '../components';
+import { initialiseSearchCoinIds } from '../redux/slices/coinsSlice';
 import { styled, useTheme } from '@mui/material/styles';
 
 // Define the columns with specific rules for the table.
@@ -83,6 +84,7 @@ const columns = [
 // Customise the Table component based on the Material UI Table component.
 // rows: [{id: {value, handleOnRowCellClick || null}, cellName: {value, handleOnRowCellClick || null}}]
 const BasicTable = ({ pagination }) => {
+	const dispatch = useDispatch();
 	const { coins } = useSelector(state => state.coins);
 	const { selectedTheme } = useSelector(state => state.settings);
 	const navigate = useNavigate();
@@ -101,9 +103,11 @@ const BasicTable = ({ pagination }) => {
 	// Prevent keep rerender
 	const handleOnRowCellClick = useMemo(
 		() => rowId => {
+			// avoid navegate to back to the page using same
+			dispatch(initialiseSearchCoinIds());
 			navigate(`/coins/${rowId}`);
 		},
-		[navigate],
+		[navigate, dispatch],
 	);
 
 	// Process data to display in table, trigger only when handleOnRowCellClick is called and coins is updated.
