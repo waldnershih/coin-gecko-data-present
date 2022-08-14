@@ -82,3 +82,8 @@ export const processHistoricalData = data => {
 
 	return processedData;
 };
+
+export const processSearchCoinsData = coins => {
+	const processedData = coins.map(coin => coin.id);
+	return processedData;
+};

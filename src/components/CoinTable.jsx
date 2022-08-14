@@ -1,4 +1,4 @@
-import React, { isValidElement, useMemo } from 'react';
+import React, { isValidElement, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -12,8 +12,9 @@ import {
 	TableHead,
 	TableRow,
 } from '@mui/material';
-import { DARK_GRAY } from '../styles/colors';
+import { PURPLE_GRAY, DARK_GRAY } from '../styles/colors';
 import { currencyConverter } from '../utils/currencyConverter';
+import { ArrowDropUp as ArrowDropUpIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
 
 // Define the columns with specific rules for the table.
 const columns = [
@@ -77,20 +78,27 @@ const columns = [
 ];
 
 // Customise the Table component based on the Material UI Table component.
-// rows: [{id: {value, handleOnCellClick || null}, cellName: {value, handleOnCellClick || null}}]
+// rows: [{id: {value, handleOnRowCellClick || null}, cellName: {value, handleOnRowCellClick || null}}]
 const BasicTable = () => {
 	const { coins } = useSelector(state => state.coins);
 	const navigate = useNavigate();
+	const [orderBy, setOrderBy] = useState('market_cap');
+	const [order, setOrder] = useState('desc');
+
+	const handleOnHeadCellClick = id => {
+		setOrderBy(id);
+		setOrder(preState => (preState === 'desc' ? 'asc' : 'desc'));
+	};
 
 	// Prevent keep rerender
-	const handleOnCellClick = useMemo(
+	const handleOnRowCellClick = useMemo(
 		() => rowId => {
 			navigate(`/coins/${rowId}`);
 		},
 		[navigate],
 	);
 
-	// Process data to display in table, trigger only when handleOnCellClick is called and coins is updated.
+	// Process data to display in table, trigger only when handleOnRowCellClick is called and coins is updated.
 	const createData = useMemo(
 		() => coin => {
 			const {
@@ -120,7 +128,7 @@ const BasicTable = () => {
 							marginRight: '10px',
 						},
 					}}
-					onClick={handleOnCellClick ? () => handleOnCellClick(id) : null}
+					onClick={handleOnRowCellClick ? () => handleOnRowCellClick(id) : null}
 				>
 					<img src={image} alt={name} loading="lazy" />
 					<Typography
@@ -136,7 +144,8 @@ const BasicTable = () => {
 						variant="caption"
 						ml={2}
 						sx={{
-							color: DARK_GRAY,
+							color: PURPLE_GRAY,
+							DARK_GRAY,
 						}}
 					>
 						{symbol.toUpperCase()}
@@ -157,13 +166,34 @@ const BasicTable = () => {
 				market_cap,
 			};
 		},
-		[handleOnCellClick],
+		[handleOnRowCellClick],
 	);
 
-	// Process data to display in table, trigger only when createData is called and coins is updated.
+	// Sort data by orderBy and order
 	let rows = useMemo(() => {
-		return coins.map(coin => createData(coin));
-	}, [coins, createData]);
+		const sortedRows = [...coins];
+		return sortedRows.sort((a, b) => {
+			let aValue = a[orderBy] === 'N/A' || a[orderBy] === '0.00' ? 0 : a[orderBy];
+			let bValue = b[orderBy] === 'N/A' || b[orderBy] === '0.00' ? 0 : b[orderBy];
+
+			// console.log(aValue, bValue);
+
+			if (typeof aValue === 'string' && typeof aValue === 'string') {
+				aValue = aValue.toLowerCase();
+				bValue = bValue.toLowerCase();
+			}
+
+			if (order === 'desc') {
+				return bValue > aValue ? 1 : -1;
+			}
+			return aValue > bValue ? 1 : -1;
+		});
+	}, [coins, orderBy, order]);
+
+	// Process data to display in table, trigger only when createData is called and coins is updated.
+	rows = useMemo(() => {
+		return rows.map(coin => createData(coin));
+	}, [rows, createData]);
 
 	return (
 		<Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 0 }}>
@@ -172,20 +202,60 @@ const BasicTable = () => {
 					<TableHead>
 						<TableRow>
 							{columns.map(column => (
-								<TableCell
-									key={column.id}
-									align={column.align}
-									style={{ minWidth: column.minWidth }}
-									onClick={column.handleOnClick}
-								>
-									<Typography
-										variant="subtitle1"
+								<TableCell key={column.id} style={{ minWidth: column.minWidth }}>
+									<Box
 										sx={{
-											fontWeight: 'bold',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: column.align === 'right' ? 'flex-end' : 'flex-start',
+
+											'&:hover': {
+												cursor: 'pointer',
+												div: {
+													opacity: 1,
+												},
+											},
 										}}
+										onClick={() => handleOnHeadCellClick(column.id)}
 									>
-										{column.label}
-									</Typography>
+										<Box
+											sx={{
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												flexDirection: 'column',
+												opacity: 0,
+											}}
+											p="0 5px"
+										>
+											<ArrowDropUpIcon
+												style={{
+													color:
+														orderBy === column.id && order === 'asc'
+															? 'black'
+															: PURPLE_GRAY,
+													fontSize: '1.3rem',
+												}}
+											/>
+											<ArrowDropDownIcon
+												style={{
+													color:
+														orderBy === column.id && order === 'desc'
+															? 'black'
+															: PURPLE_GRAY,
+													fontSize: '1.3rem',
+												}}
+											/>
+										</Box>
+										<Typography
+											variant="subtitle1"
+											sx={{
+												fontWeight: 'bold',
+											}}
+										>
+											{column.label}
+										</Typography>
+									</Box>
 								</TableCell>
 							))}
 						</TableRow>
@@ -201,7 +271,7 @@ const BasicTable = () => {
 												key={column.id}
 												align={column.align}
 												sx={[
-													handleOnCellClick && {
+													isValidElement(value) && {
 														'&:hover': {
 															cursor: 'pointer',
 														},

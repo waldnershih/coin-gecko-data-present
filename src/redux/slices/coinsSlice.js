@@ -1,6 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-import { fetchData, processCoinsData, processCoinData, processHistoricalData, baseUrl } from '../apis';
+import {
+	fetchData,
+	processCoinsData,
+	processCoinData,
+	processHistoricalData,
+	processSearchCoinsData,
+	baseUrl,
+} from '../apis';
 
 const coinsBaseUrl = `${baseUrl}/coins`;
 
@@ -27,6 +34,11 @@ const initialCoinsState = {
 	selectedCoinHistoryLoading: false,
 	selectedCoinHistoryError: '',
 	selectedCoinHistorySuccess: false,
+	// get searchCoinIds
+	searchCoinIds: [],
+	searchCoinIdsLoading: false,
+	searchCoinIdsError: '',
+	searchCoinIdsSuccess: false,
 };
 
 // actions
@@ -38,10 +50,12 @@ export const fetchCoins = createAsyncThunk('coins/fetchCoins', async searchParam
 		coinsCurrentPage,
 		coinsSparkline = false,
 		coinsPriceChangePercentage = '1h,24h,7d',
+		searchCoinIds,
 	} = searchParams;
 
 	const coinsUrl = new URL(`${coinsBaseUrl}/markets`);
 	coinsUrl.search = new URLSearchParams({
+		ids: searchCoinIds || '',
 		vs_currency: coinsVsCurrency,
 		order: coinsOrder,
 		per_page: coinsPerPage,
@@ -89,6 +103,19 @@ export const fetchCoinHistory = createAsyncThunk('coins/fetchCoinHistory', async
 		const response = await fetchData(selectedCoinHistoryUrl, coinsOption);
 		const processResponse = processHistoricalData(response);
 
+		return processResponse;
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+});
+
+export const fetchSearchCoinIds = createAsyncThunk('coins/fetchSearchCoinIds', async searchTerms => {
+	const searchCoinIdsUrl = `${baseUrl}/search?query=${searchTerms}`;
+
+	try {
+		const response = await fetchData(searchCoinIdsUrl, coinsOption);
+		const processResponse = processSearchCoinsData(response.coins);
 		return processResponse;
 	} catch (error) {
 		console.log(error);
@@ -168,6 +195,23 @@ export const coinsSlice = createSlice({
 			state.selectedCoinHistoryLoading = false;
 			state.selectedCoinHistoryError = action.error.message;
 			state.selectedCoinHistorySuccess = false;
+		},
+		// fetch search coin ids
+		[fetchSearchCoinIds.pending]: (state, _) => {
+			state.searchCoinIdsLoading = true;
+			state.searchCoinIdsError = '';
+			state.searchCoinIdsSuccess = false;
+		},
+		[fetchSearchCoinIds.fulfilled]: (state, action) => {
+			state.searchCoinIdsLoading = false;
+			state.searchCoinIds = action.payload;
+			state.searchCoinIdsError = '';
+			state.searchCoinIdsSuccess = true;
+		},
+		[fetchSearchCoinIds.rejected]: (state, action) => {
+			state.searchCoinIdsLoading = false;
+			state.searchCoinIdsError = action.error.message;
+			state.searchCoinIdsSuccess = false;
 		},
 	},
 });
