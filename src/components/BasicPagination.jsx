@@ -12,8 +12,6 @@ const BasicPagination = ({ count, handleOnChange, currentPage, size, siblingCoun
 			onChange={handleOnChange}
 			defaultPage={1}
 			page={currentPage}
-			// showFirstButton
-			// showLastButton
 			size={size}
 			siblingCount={siblingCount}
 			boundaryCount={boundaryCount}

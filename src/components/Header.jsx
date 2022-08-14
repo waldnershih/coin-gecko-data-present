@@ -20,10 +20,12 @@ import {
 	Home as HomeIcon,
 } from '@mui/icons-material';
 
-import { LogoBlue } from '../constants/assets';
+import { LogoBlue, LogoWhite } from '../constants/assets';
 import { setSelectedCurrency, setSelectedTheme } from '../redux/slices/settingsSlice';
 import { styled } from '@mui/material/styles';
 import { dollarType } from '../constants/data';
+
+import { getHeaderBackgroundColor } from '../styles/colors';
 
 const Header = ({ setIsDrawerOpen }) => {
 	const dispatch = useDispatch();
@@ -51,6 +53,7 @@ const Header = ({ setIsDrawerOpen }) => {
 					display: 'flex',
 					justifyContent: 'center',
 					alignItems: 'center',
+					backgroundColor: getHeaderBackgroundColor(selectedTheme),
 				}}
 				color="inherit"
 				elevation={2}
@@ -59,7 +62,11 @@ const Header = ({ setIsDrawerOpen }) => {
 					<Toolbar variant="dense">
 						<ImageBox>
 							<Link to="/">
-								<img src={LogoBlue} alt="logo-light-mode" height={24} />
+								<img
+									src={selectedTheme === 'light' ? LogoBlue : LogoWhite}
+									alt="logo-light-mode"
+									height={24}
+								/>
 							</Link>
 						</ImageBox>
 						<HomeIconBox>
@@ -86,7 +93,7 @@ const Header = ({ setIsDrawerOpen }) => {
 									))}
 								</Select>
 							</FormControl>
-							<IconButton ml="15px" onClick={handleOnThemeChange} color="primary">
+							<IconButton onClick={handleOnThemeChange} color="primary">
 								{selectedTheme === 'light' ? <LightMode /> : <DarkMode />}
 							</IconButton>
 						</OptionBox>

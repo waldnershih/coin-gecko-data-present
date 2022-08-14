@@ -13,7 +13,7 @@ import {
 	TableRow,
 	useMediaQuery,
 } from '@mui/material';
-import { PURPLE_GRAY, DARK_GRAY, BLUE_GRAY } from '../styles/colors';
+import { PURPLE_GRAY, DARK_GRAY, BLUE_GRAY, GRAY } from '../styles/colors';
 import { currencyConverter } from '../utils/currencyConverter';
 import { ArrowDropUp as ArrowDropUpIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
 import { BasicPagination } from '../components';
@@ -84,10 +84,12 @@ const columns = [
 // rows: [{id: {value, handleOnRowCellClick || null}, cellName: {value, handleOnRowCellClick || null}}]
 const BasicTable = ({ pagination }) => {
 	const { coins } = useSelector(state => state.coins);
+	const { selectedTheme } = useSelector(state => state.settings);
 	const navigate = useNavigate();
 	const [orderBy, setOrderBy] = useState('market_cap');
 	const [order, setOrder] = useState('desc');
 
+	// change pagination style based on the window size
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -175,8 +177,9 @@ const BasicTable = ({ pagination }) => {
 	);
 
 	// Sort data by orderBy and order
-	let rows = useMemo(() => {
+	let processedRows = useMemo(() => {
 		const sortedRows = [...coins];
+		// sorting
 		sortedRows.sort((a, b) => {
 			let aValue = a[orderBy] === 'N/A' || a[orderBy] === '0.00' ? 0 : a[orderBy];
 			let bValue = b[orderBy] === 'N/A' || b[orderBy] === '0.00' ? 0 : b[orderBy];
@@ -193,6 +196,7 @@ const BasicTable = ({ pagination }) => {
 			}
 			return aValue > bValue ? 1 : -1;
 		});
+		// create row data for table by coins
 		return sortedRows.map(coin => createData(coin));
 	}, [coins, orderBy, order, createData]);
 
@@ -213,7 +217,8 @@ const BasicTable = ({ pagination }) => {
 									<StickyTableHead
 										key={column.id}
 										style={{ minWidth: column.minWidth }}
-										positionKey={column.id}
+										positionkey={column.id}
+										thememode={selectedTheme}
 									>
 										<Box
 											sx={{
@@ -273,7 +278,7 @@ const BasicTable = ({ pagination }) => {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							{rows.map(row => {
+							{processedRows.map(row => {
 								return (
 									<TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
 										{columns.map(column => {
@@ -289,7 +294,8 @@ const BasicTable = ({ pagination }) => {
 															},
 														},
 													]}
-													positionKey={column.id}
+													positionkey={column.id}
+													thememode={selectedTheme}
 												>
 													{isValidElement(value) ? (
 														value
@@ -335,17 +341,15 @@ export default BasicTable;
 
 const StickyTableHead = styled(TableCell, {
 	// Configure which props should be forwarded on DOM
-	shouldForwardProp: prop => prop !== 'positionKey',
+	shouldForwardProp: prop => prop !== 'positionkey' || prop !== 'thememode',
 	name: 'StickyTableHead',
 	slot: 'Root',
-})(({ positionKey }) => {
+})(({ positionkey, thememode }) => {
 	return (
-		['market_cap_rank', 'name'].includes(positionKey) && {
+		['market_cap_rank', 'name'].includes(positionkey) && {
 			position: 'sticky',
 			left: 0,
-			background: BLUE_GRAY,
-			// boxShadow: '5px 2px 5px grey',
-			// borderRight: `2px solid ${LIGHT_BLACK}`,
+			background: thememode === 'light' ? BLUE_GRAY : GRAY,
 		}
 	);
 });

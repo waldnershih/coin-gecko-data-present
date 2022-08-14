@@ -1,8 +1,10 @@
 import React from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import { DARK_GRAY } from '../styles/colors';
+import { useSelector } from 'react-redux';
 
 const Loading = ({ height, width, color }) => {
+	const { selectedTheme } = useSelector(state => state.settings);
 	return (
 		<Box
 			sx={{
@@ -15,7 +17,7 @@ const Loading = ({ height, width, color }) => {
 		>
 			<CircularProgress
 				sx={{
-					color: color || DARK_GRAY,
+					color: color || selectedTheme === 'dark' ? '#fff' : DARK_GRAY,
 				}}
 			/>
 		</Box>

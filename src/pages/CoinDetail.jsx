@@ -11,10 +11,10 @@ import { Loading, CoinLineChart } from '../components';
 import { ArrowDropUp } from '@mui/icons-material';
 
 import { DARK_GRAY } from '../styles/colors';
-import { ThemeProvider, responsiveFontSizesTheme } from '../styles/themes';
 import { timestampToCustomisedDatetime, timestampToDatetime } from '../utils/dateCoverter';
 import { currencyConverter } from '../utils/currencyConverter';
 import { styled } from '@mui/material/styles';
+import { getAppBackgroundColor } from '../styles/colors';
 
 const CoinDetail = () => {
 	const { id } = useParams();
@@ -23,7 +23,7 @@ const CoinDetail = () => {
 	const { selectedCoin, selectedCoinLoading, selectedCoinHistory, selectedCoinError } = useSelector(
 		state => state.coins,
 	);
-	const { selectedCurrency } = useSelector(state => state.settings);
+	const { selectedCurrency, selectedTheme } = useSelector(state => state.settings);
 	const [selectedDays, setSelectedDays] = useState(1);
 
 	// convert selectedCoinHistory data to chart format data with memoization
@@ -62,168 +62,172 @@ const CoinDetail = () => {
 	};
 
 	return (
-		<ThemeProvider theme={responsiveFontSizesTheme}>
-			<Container maxWidth="xl">
-				<CoinDetailsBox>
-					<CoinInfoBox>
-						{selectedCoinLoading ? (
-							<Loading height="90vh" width="100%" />
-						) : (
+		<Container
+			maxWidth="xl"
+			sx={{
+				backgroundColor: getAppBackgroundColor(selectedTheme),
+			}}
+		>
+			<CoinDetailsBox>
+				<CoinInfoBox>
+					{selectedCoinLoading ? (
+						<Loading height="calc(100vh - 70px)" width="100%" />
+					) : (
+						<Box
+							sx={{
+								width: '100%',
+								display: 'flex',
+								flexDirection: 'column',
+							}}
+						>
+							<Box mb="20px">
+								<img
+									src={selectedCoin?.image}
+									alt={selectedCoin?.name}
+									loading="lazy"
+									height={120}
+									width={120}
+								/>
+							</Box>
+
 							<Box
 								sx={{
-									width: '100%',
 									display: 'flex',
-									flexDirection: 'column',
+									alignItems: 'center',
+									flexWrap: 'wrap',
 								}}
+								mb="10px"
 							>
-								<Box mb="20px">
-									<img
-										src={selectedCoin?.image}
-										alt={selectedCoin?.name}
-										loading="lazy"
-										height={120}
-										width={120}
-									/>
-								</Box>
-
-								<Box
+								<Typography
+									variant="h4"
+									mr="5px"
 									sx={{
-										display: 'flex',
-										alignItems: 'center',
-										flexWrap: 'wrap',
+										whiteSpace: 'nowrap',
 									}}
-									mb="10px"
+									color="text.primary"
 								>
-									<Typography
-										variant="h4"
-										mr="5px"
-										sx={{
-											whiteSpace: 'nowrap',
-										}}
-									>
-										{selectedCoin?.name}
-									</Typography>
+									{selectedCoin?.name}
+								</Typography>
 
-									<Typography variant="h5" mr="10px">
-										({selectedCoin?.symbol})
-									</Typography>
+								<Typography variant="h5" mr="10px" color="text.primary">
+									({selectedCoin?.symbol})
+								</Typography>
 
-									{selectedCoin && selectedCoin?.market_cap_rank !== 'N/A' && (
-										<Paper
-											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'center',
-												whiteSpace: 'nowrap',
-												backgroundColor: 'primary.main',
-												color: 'primary.contrastText',
-												padding: '10px',
-												height: 30,
-											}}
-										>
-											<Typography variant="subtitle1">
-												Rank #{selectedCoin.market_cap_rank}
-											</Typography>
-										</Paper>
-									)}
-								</Box>
-
-								<Box
-									sx={{
-										display: 'flex',
-										alignItems: 'center',
-										flexWrap: 'wrap',
-									}}
-									mb="20px"
-								>
-									<Typography variant="h3" mr="20px">
-										{currencyConverter(selectedCurrency)}
-										{selectedCoin?.current_price}
-									</Typography>
-
-									{selectedCoin?.price_change_percentage_24h_in_currency === 'N/A' ? (
-										<Typography variant="h4" mr="20px">
-											{selectedCoin?.price_change_percentage_24h_in_currency}
-										</Typography>
-									) : (
-										<Typography
-											variant="h4"
-											sx={{
-												color:
-													selectedCoin?.price_change_percentage_24h_in_currency > 0
-														? 'success.light'
-														: 'error.light',
-											}}
-										>
-											<ArrowDropUp color="success.light" fontSize="24px" />
-											{selectedCoin?.price_change_percentage_24h_in_currency.toFixed(1)}%
-										</Typography>
-									)}
-								</Box>
-
-								<Box>
-									<Typography variant="h6">
-										<div dangerouslySetInnerHTML={sanitizedData()} />
-									</Typography>
-								</Box>
-							</Box>
-						)}
-					</CoinInfoBox>
-
-					<CoinLineChartBox>
-						{selectedCoinLoading ? (
-							<Loading height={'90vh'} width="100%" />
-						) : (
-							processedHistoricalData.length > 0 &&
-							processedHistoricalData[0].price !== 0.0 && (
-								<>
-									<CoinLineChart data={processedHistoricalData} currency={selectedCurrency} />
-									<Box
+								{selectedCoin && selectedCoin?.market_cap_rank !== 'N/A' && (
+									<Paper
 										sx={{
 											display: 'flex',
-											flexDirection: 'column',
 											alignItems: 'center',
+											justifyContent: 'center',
+											whiteSpace: 'nowrap',
+											backgroundColor: 'primary.main',
+											color: 'primary.contrastText',
+											padding: '10px',
+											height: 30,
 										}}
-										mt="20px"
 									>
-										<ConstumButtonGroup variant="outlined" aria-label="outlined button group">
-											<Button
-												onClick={() => setSelectedDays(1)}
-												variant={selectedDays === 1 ? 'contained' : 'outlined'}
-												disableElevation
-											>
-												24h
-											</Button>
-											<Button
-												onClick={() => setSelectedDays(7)}
-												variant={selectedDays === 7 ? 'contained' : 'outlined'}
-												disableElevation
-											>
-												7d
-											</Button>
-											<Button
-												onClick={() => setSelectedDays(30)}
-												variant={selectedDays === 30 ? 'contained' : 'outlined'}
-												disableElevation
-											>
-												30d
-											</Button>
-										</ConstumButtonGroup>
-									</Box>
-								</>
-							)
-						)}
-					</CoinLineChartBox>
-				</CoinDetailsBox>
-			</Container>
-		</ThemeProvider>
+										<Typography variant="subtitle1">
+											Rank #{selectedCoin.market_cap_rank}
+										</Typography>
+									</Paper>
+								)}
+							</Box>
+
+							<Box
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									flexWrap: 'wrap',
+								}}
+								mb="20px"
+							>
+								<Typography variant="h3" mr="20px" color="text.primary">
+									{currencyConverter(selectedCurrency)}
+									{selectedCoin?.current_price}
+								</Typography>
+
+								{selectedCoin?.price_change_percentage_24h_in_currency === 'N/A' ? (
+									<Typography variant="h4" mr="20px" color="text.primary">
+										{selectedCoin?.price_change_percentage_24h_in_currency}
+									</Typography>
+								) : (
+									<Typography
+										variant="h4"
+										sx={{
+											color:
+												selectedCoin?.price_change_percentage_24h_in_currency > 0
+													? 'success.light'
+													: 'error.light',
+										}}
+									>
+										<ArrowDropUp color="success.light" fontSize="24px" />
+										{selectedCoin?.price_change_percentage_24h_in_currency.toFixed(1)}%
+									</Typography>
+								)}
+							</Box>
+
+							<Box>
+								<Typography variant="h6" color="text.primary">
+									<div dangerouslySetInnerHTML={sanitizedData()} />
+								</Typography>
+							</Box>
+						</Box>
+					)}
+				</CoinInfoBox>
+
+				<CoinLineChartBox>
+					{selectedCoinLoading ? (
+						<Loading height={'calc(100vh - 70px)'} width="100%" />
+					) : (
+						processedHistoricalData.length > 0 &&
+						processedHistoricalData[0].price !== 0.0 && (
+							<>
+								<CoinLineChart data={processedHistoricalData} currency={selectedCurrency} />
+								<Box
+									sx={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+									}}
+									mt="20px"
+								>
+									<ConstumButtonGroup variant="outlined" aria-label="outlined button group">
+										<Button
+											onClick={() => setSelectedDays(1)}
+											variant={selectedDays === 1 ? 'contained' : 'outlined'}
+											disableElevation
+										>
+											24h
+										</Button>
+										<Button
+											onClick={() => setSelectedDays(7)}
+											variant={selectedDays === 7 ? 'contained' : 'outlined'}
+											disableElevation
+										>
+											7d
+										</Button>
+										<Button
+											onClick={() => setSelectedDays(30)}
+											variant={selectedDays === 30 ? 'contained' : 'outlined'}
+											disableElevation
+										>
+											30d
+										</Button>
+									</ConstumButtonGroup>
+								</Box>
+							</>
+						)
+					)}
+				</CoinLineChartBox>
+			</CoinDetailsBox>
+		</Container>
 	);
 };
 
 export default CoinDetail;
 
 const CoinDetailsBox = styled(Box)(({ theme }) => ({
-	minHeight: '90vh',
+	minHeight: 'calc(100vh - 70px)',
 	width: '100%',
 	display: 'flex',
 	alignItems: 'stretch',
