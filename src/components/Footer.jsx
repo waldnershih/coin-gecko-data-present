@@ -3,6 +3,18 @@ import { Box, Typography } from '@mui/material';
 import { LIGHT_BLACK } from '../styles/colors';
 import { styled } from '@mui/material/styles';
 
+const Footer = () => {
+	return (
+		<FooterWrapper>
+			<Box sx={{ maxWidth: '1440px' }} p="15px">
+				<Typography variant="subtitle1">© 2022 Waldner. All Rights Reserved.</Typography>
+			</Box>
+		</FooterWrapper>
+	);
+};
+
+export default Footer;
+
 const FooterWrapper = styled(Box)(({ theme }) => ({
 	height: '10vh',
 	width: '100%',
@@ -18,15 +30,3 @@ const FooterWrapper = styled(Box)(({ theme }) => ({
 		alignItems: 'end',
 	},
 }));
-
-const Footer = () => {
-	return (
-		<FooterWrapper pr="20px" pb="20px">
-			<Box sx={{ maxWidth: '1440px' }}>
-				<Typography variant="subtitle1">© 2022 Waldner. All Rights Reserved.</Typography>
-			</Box>
-		</FooterWrapper>
-	);
-};
-
-export default Footer;

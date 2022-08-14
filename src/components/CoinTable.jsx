@@ -11,10 +11,13 @@ import {
 	TableContainer,
 	TableHead,
 	TableRow,
+	useMediaQuery,
 } from '@mui/material';
-import { PURPLE_GRAY, DARK_GRAY } from '../styles/colors';
+import { PURPLE_GRAY, DARK_GRAY, BLUE_GRAY } from '../styles/colors';
 import { currencyConverter } from '../utils/currencyConverter';
 import { ArrowDropUp as ArrowDropUpIcon, ArrowDropDown as ArrowDropDownIcon } from '@mui/icons-material';
+import { BasicPagination } from '../components';
+import { styled, useTheme } from '@mui/material/styles';
 
 // Define the columns with specific rules for the table.
 const columns = [
@@ -79,11 +82,14 @@ const columns = [
 
 // Customise the Table component based on the Material UI Table component.
 // rows: [{id: {value, handleOnRowCellClick || null}, cellName: {value, handleOnRowCellClick || null}}]
-const BasicTable = () => {
+const BasicTable = ({ pagination }) => {
 	const { coins } = useSelector(state => state.coins);
 	const navigate = useNavigate();
 	const [orderBy, setOrderBy] = useState('market_cap');
 	const [order, setOrder] = useState('desc');
+
+	const theme = useTheme();
+	const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
 	const handleOnHeadCellClick = id => {
 		setOrderBy(id);
@@ -144,8 +150,7 @@ const BasicTable = () => {
 						variant="caption"
 						ml={2}
 						sx={{
-							color: PURPLE_GRAY,
-							DARK_GRAY,
+							color: DARK_GRAY,
 						}}
 					>
 						{symbol.toUpperCase()}
@@ -172,7 +177,7 @@ const BasicTable = () => {
 	// Sort data by orderBy and order
 	let rows = useMemo(() => {
 		const sortedRows = [...coins];
-		return sortedRows.sort((a, b) => {
+		sortedRows.sort((a, b) => {
 			let aValue = a[orderBy] === 'N/A' || a[orderBy] === '0.00' ? 0 : a[orderBy];
 			let bValue = b[orderBy] === 'N/A' || b[orderBy] === '0.00' ? 0 : b[orderBy];
 
@@ -188,121 +193,159 @@ const BasicTable = () => {
 			}
 			return aValue > bValue ? 1 : -1;
 		});
-	}, [coins, orderBy, order]);
-
-	// Process data to display in table, trigger only when createData is called and coins is updated.
-	rows = useMemo(() => {
-		return rows.map(coin => createData(coin));
-	}, [rows, createData]);
+		return sortedRows.map(coin => createData(coin));
+	}, [coins, orderBy, order, createData]);
 
 	return (
-		<Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 0 }}>
-			<TableContainer>
-				<Table stickyHeader aria-label="sticky table">
-					<TableHead>
-						<TableRow>
-							{columns.map(column => (
-								<TableCell key={column.id} style={{ minWidth: column.minWidth }}>
-									<Box
-										sx={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: column.align === 'right' ? 'flex-end' : 'flex-start',
-
-											'&:hover': {
-												cursor: 'pointer',
-												div: {
-													opacity: 1,
-												},
-											},
-										}}
-										onClick={() => handleOnHeadCellClick(column.id)}
+		<Box
+			sx={{
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+			}}
+		>
+			<Paper sx={{ width: '100%', overflow: 'hidden', boxShadow: 0 }}>
+				<TableContainer>
+					<Table aria-label="sticky table">
+						<TableHead>
+							<TableRow>
+								{columns.map(column => (
+									<StickyTableHead
+										key={column.id}
+										style={{ minWidth: column.minWidth }}
+										positionKey={column.id}
 									>
 										<Box
 											sx={{
 												display: 'flex',
 												alignItems: 'center',
-												justifyContent: 'center',
-												flexDirection: 'column',
-												opacity: 0,
-											}}
-											p="0 5px"
-										>
-											<ArrowDropUpIcon
-												style={{
-													color:
-														orderBy === column.id && order === 'asc'
-															? 'black'
-															: PURPLE_GRAY,
-													fontSize: '1.3rem',
-												}}
-											/>
-											<ArrowDropDownIcon
-												style={{
-													color:
-														orderBy === column.id && order === 'desc'
-															? 'black'
-															: PURPLE_GRAY,
-													fontSize: '1.3rem',
-												}}
-											/>
-										</Box>
-										<Typography
-											variant="subtitle1"
-											sx={{
-												fontWeight: 'bold',
-											}}
-										>
-											{column.label}
-										</Typography>
-									</Box>
-								</TableCell>
-							))}
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{rows.map(row => {
-							return (
-								<TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-									{columns.map(column => {
-										const value = row[column.id];
-										return (
-											<TableCell
-												key={column.id}
-												align={column.align}
-												sx={[
-													isValidElement(value) && {
-														'&:hover': {
-															cursor: 'pointer',
-														},
+												justifyContent: column.align === 'right' ? 'flex-end' : 'flex-start',
+
+												'&:hover': {
+													cursor: 'pointer',
+													div: {
+														opacity: 1,
 													},
-												]}
+												},
+											}}
+											onClick={() => handleOnHeadCellClick(column.id)}
+										>
+											<Box
+												sx={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'center',
+													flexDirection: 'column',
+													opacity: 0,
+												}}
+												p="0 5px"
 											>
-												{isValidElement(value) ? (
-													value
-												) : (
-													<Typography
-														variant="body1"
-														sx={{
-															color: column.getColor && column.getColor(value),
-														}}
-													>
-														{column.format && typeof value === 'number'
-															? column.format(value)
-															: value}
-													</Typography>
-												)}
-											</TableCell>
-										);
-									})}
-								</TableRow>
-							);
-						})}
-					</TableBody>
-				</Table>
-			</TableContainer>
-		</Paper>
+												<ArrowDropUpIcon
+													style={{
+														color:
+															orderBy === column.id && order === 'asc'
+																? 'black'
+																: PURPLE_GRAY,
+														fontSize: '1.3rem',
+													}}
+												/>
+												<ArrowDropDownIcon
+													style={{
+														color:
+															orderBy === column.id && order === 'desc'
+																? 'black'
+																: PURPLE_GRAY,
+														fontSize: '1.3rem',
+													}}
+												/>
+											</Box>
+											<Typography
+												variant="subtitle1"
+												sx={{
+													fontWeight: 'bold',
+												}}
+											>
+												{column.label}
+											</Typography>
+										</Box>
+									</StickyTableHead>
+								))}
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{rows.map(row => {
+								return (
+									<TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+										{columns.map(column => {
+											const value = row[column.id];
+											return (
+												<StickyTableHead
+													key={column.id}
+													align={column.align}
+													sx={[
+														isValidElement(value) && {
+															'&:hover': {
+																cursor: 'pointer',
+															},
+														},
+													]}
+													positionKey={column.id}
+												>
+													{isValidElement(value) ? (
+														value
+													) : (
+														<Typography
+															variant="body1"
+															sx={{
+																color: column.getColor && column.getColor(value),
+															}}
+														>
+															{column.format && typeof value === 'number'
+																? column.format(value)
+																: value}
+														</Typography>
+													)}
+												</StickyTableHead>
+											);
+										})}
+									</TableRow>
+								);
+							})}
+						</TableBody>
+					</Table>
+				</TableContainer>
+			</Paper>
+			{pagination && (
+				<Box mt="20px">
+					<BasicPagination
+						count={pagination.count}
+						handleOnChange={pagination.handleOnPaginationChange}
+						currentPage={pagination.currentPage}
+						size={matches ? 'medium' : 'small'}
+						boundaryCount={matches ? 1 : 1}
+						siblingCount={matches ? 1 : 0}
+					/>
+				</Box>
+			)}
+		</Box>
 	);
 };
 
 export default BasicTable;
+
+const StickyTableHead = styled(TableCell, {
+	// Configure which props should be forwarded on DOM
+	shouldForwardProp: prop => prop !== 'positionKey',
+	name: 'StickyTableHead',
+	slot: 'Root',
+})(({ positionKey }) => {
+	return (
+		['market_cap_rank', 'name'].includes(positionKey) && {
+			position: 'sticky',
+			left: 0,
+			background: BLUE_GRAY,
+			// boxShadow: '5px 2px 5px grey',
+			// borderRight: `2px solid ${LIGHT_BLACK}`,
+		}
+	);
+});

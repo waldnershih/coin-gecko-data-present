@@ -6,5 +6,6 @@ import DataNotFound from './DataNotFound';
 import ScrollToTop from './ScrollToTop';
 import Loading from './Loading';
 import CoinLineChart from './CoinLineChart';
+import BasicDrawer from './BasicDrawer';
 
-export { CoinTable, BasicPagination, Header, Footer, DataNotFound, ScrollToTop, Loading, CoinLineChart };
+export { BasicDrawer, CoinTable, BasicPagination, Header, Footer, DataNotFound, ScrollToTop, Loading, CoinLineChart };

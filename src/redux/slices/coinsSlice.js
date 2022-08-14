@@ -1,16 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import {
-	fetchData,
 	processCoinsData,
 	processCoinData,
 	processHistoricalData,
 	processSearchCoinsData,
-	baseUrl,
-} from '../apis';
+} from '../../utils/redux/coins';
+import { fetchData, baseUrl } from '../apis';
 
 const coinsBaseUrl = `${baseUrl}/coins`;
-
 const coinsOption = { method: 'GET' };
 
 const initialCoinsState = {
@@ -53,9 +51,17 @@ export const fetchCoins = createAsyncThunk('coins/fetchCoins', async searchParam
 		searchCoinIds,
 	} = searchParams;
 
+	// processed searchCoinIds params format
+	let newSearchCoinIds = searchCoinIds;
+	if (searchCoinIds.length <= 0) {
+		newSearchCoinIds = '[]';
+	} else if (searchCoinIds[0] === 'all') {
+		newSearchCoinIds = '';
+	}
+
 	const coinsUrl = new URL(`${coinsBaseUrl}/markets`);
 	coinsUrl.search = new URLSearchParams({
-		ids: searchCoinIds || '',
+		ids: newSearchCoinIds || '',
 		vs_currency: coinsVsCurrency,
 		order: coinsOrder,
 		per_page: coinsPerPage,
@@ -205,6 +211,7 @@ export const coinsSlice = createSlice({
 		[fetchSearchCoinIds.fulfilled]: (state, action) => {
 			state.searchCoinIdsLoading = false;
 			state.searchCoinIds = action.payload;
+			state.allCoinsLength = action.payload.length; // set all coins length to search results length
 			state.searchCoinIdsError = '';
 			state.searchCoinIdsSuccess = true;
 		},

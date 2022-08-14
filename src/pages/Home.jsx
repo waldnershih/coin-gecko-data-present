@@ -13,207 +13,204 @@ import {
 	OutlinedInput,
 	InputAdornment,
 	IconButton,
+	Typography,
 } from '@mui/material';
 
 import { Search as SearchIcon } from '@mui/icons-material';
 
-import { BasicPagination, CoinTable, DataNotFound, Loading } from '../components';
-import useQuery from '../hooks/useQuery';
+import { CoinTable, DataNotFound, Loading } from '../components';
+import { styled } from '@mui/material/styles';
+import { ThemeProvider, responsiveFontSizesTheme } from '../styles/themes';
 
 // Define the default sorting rules for the table.
 const coinsPerPage = 50;
 const coinsOrder = 'market_cap_desc';
 const coinsCategory = '';
 
+const initialCoinsParamsState = {
+	coinsCurrentPage: 1,
+	coinIds: ['all'],
+};
+
 const Home = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
-	let query = useQuery();
-	const { coins, searchCoinIds, allCoinsLength, coinsLoading, allCoinsLengthLoading, searchCoinIdsLoading } =
-		useSelector(state => state.coins);
+	// let query = useQuery();
+	const {
+		coins,
+		searchCoinIds,
+		allCoinsLength,
+		coinsLoading,
+		allCoinsLengthLoading,
+		searchCoinIdsLoading,
+		searchCoinIdsSuccess,
+	} = useSelector(state => state.coins);
 	const { selectedCurrency } = useSelector(state => state.settings);
 
 	// const [coinsCategory, setCoinsCategory] = useState("");
-	// const [coinsOrder, setCoinsOrder] = useState("market_cap_desc"); // valid values: market_cap_desc, gecko_desc, gecko_asc, market_cap_asc, market_cap_desc, volume_asc, volume_desc, id_asc, id_desc
-	const [coinsCurrentPage, setCoinsCurrentPage] = useState(-1); // prevent initial dispatch of fetchCoins to avoid async fetching error
+	const [coinsParams, setCoinsParams] = useState(initialCoinsParamsState);
 	const [searchValue, setSearchValue] = useState('');
-	const [searchTermAndPage, setSearchTermAndPage] = useState(''); // search term => for fetchCoinIds and page number => for currentPage
 
+	// get all coins length for pagination for all categories
 	useEffect(() => {
 		dispatch(fetchCoinsLength());
 	}, [dispatch]);
 
 	useEffect(() => {
-		const page = query.get('page');
-		const searchTerm = query.get('search');
-		if (page && searchTerm) {
-			// search and page query params both exist
-			dispatch(fetchSearchCoinIds(searchTerm));
-			setSearchTermAndPage(searchTerm + ',' + page);
-			setCoinsCurrentPage(-1);
-		} else if (page) {
-			// only page query param exists
-			setCoinsCurrentPage(parseInt(page));
-			setSearchTermAndPage('');
-		} else if (searchTerm) {
-			// only search query param exists
-			dispatch(fetchSearchCoinIds(searchTerm));
-			setSearchTermAndPage(searchTerm + ',1');
-			setCoinsCurrentPage(-1);
-		} else {
-			// no query params exist
-			setCoinsCurrentPage(1);
-			setSearchTermAndPage('');
-		}
-	}, [query, dispatch]);
+		if (!searchCoinIdsSuccess) return;
+
+		// always search from the first page
+		setCoinsParams({ coinIds: searchCoinIds, coinsCurrentPage: 1 });
+	}, [searchCoinIds, searchCoinIdsSuccess]);
 
 	useEffect(() => {
-		if (coinsCurrentPage === -1) return;
+		const { coinsCurrentPage, coinIds } = coinsParams;
+
 		dispatch(
 			fetchCoins({
 				coinsVsCurrency: selectedCurrency,
-				coinsPerPage,
-				coinsCategory,
-				coinsOrder,
 				coinsCurrentPage,
-			}),
-		);
-	}, [selectedCurrency, coinsCurrentPage, dispatch]);
-
-	useEffect(() => {
-		if (!searchTermAndPage) return;
-		if (searchCoinIds.length === 0) return;
-		console.log('coinsCurrentPage2.........');
-		dispatch(
-			fetchCoins({
-				coinsVsCurrency: selectedCurrency,
 				coinsPerPage,
-				coinsCategory,
 				coinsOrder,
-				coinsCurrentPage: searchTermAndPage.split(',')[1],
-				searchCoinIds,
+				coinsCategory,
+				searchCoinIds: coinIds,
 			}),
 		);
-	}, [searchCoinIds, selectedCurrency, searchTermAndPage, dispatch]);
+	}, [coinsParams, selectedCurrency, dispatch]);
 
 	const handleOnPaginationChange = (event, value) => {
-		navigate(`?page=${value}`);
-	};
-
-	const handleOnPaginationChangeWithSearch = (event, value) => {
-		const searchTerm = searchTermAndPage?.split(',')[0];
-		navigate(`?search=${searchTerm}&page=${value}`);
+		setCoinsParams(perState => ({ ...perState, coinsCurrentPage: value }));
 	};
 
 	const handleOnSearchClick = () => {
-		navigate(`?search=${searchValue}&page=1`);
-		setSearchValue('');
+		dispatch(fetchSearchCoinIds(searchValue));
 	};
 
 	const handleOnAllCategoryClick = () => {
-		navigate(`?page=1`);
+		navigate(`/`);
+		dispatch(fetchCoinsLength());
+		//  initialize the state of home page
+		setCoinsParams(initialCoinsParamsState);
+		setSearchValue('');
 	};
 
 	return (
 		// evaluate loading first and then length of data
-		<Container maxWidth="xl">
-			<Box>
-				{allCoinsLengthLoading || searchCoinIdsLoading || coinsLoading ? (
-					<Loading height={'90vh'} width={'100%'} pt="7vh" />
-				) : coins.length > 0 ? (
-					<Box
-						sx={{
-							minHeight: '90vh',
-							width: '100%',
-							overflow: 'hidden',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-						}}
-						pt="10vh"
-					>
+		<ThemeProvider theme={responsiveFontSizesTheme}>
+			<Container maxWidth="xl">
+				<Box>
+					{allCoinsLengthLoading || searchCoinIdsLoading || coinsLoading ? (
+						<Loading height={'90vh'} width={'100%'} pt="7vh" />
+					) : (
 						<Box
-							p="20px"
 							sx={{
+								minHeight: '90vh',
 								width: '100%',
+								overflow: 'hidden',
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
 							}}
+							pt="90px"
 						>
-							<Box
-								sx={{
-									display: 'flex',
-									flexDirection: 'row',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-								}}
-							>
-								<Button variant="outlined" onClick={handleOnAllCategoryClick}>
-									All Category
-								</Button>
-								<FormControl sx={{ m: 1, width: '25ch' }} variant="outlined" size="small">
-									<InputLabel htmlFor="outlined-adornment-search">Search</InputLabel>
-									<OutlinedInput
-										id="outlined-adornment-search"
-										type="text"
-										value={searchValue}
-										onChange={e => setSearchValue(e.target.value)}
-										endAdornment={
-											<InputAdornment position="end">
-												<IconButton
-													aria-label="toggle search"
-													edge="end"
-													onClick={handleOnSearchClick}
-												>
-													<SearchIcon />
-												</IconButton>
-											</InputAdornment>
-										}
-										label="Password"
-									/>
-								</FormControl>
-							</Box>
-
-							<CoinTable />
+							<TableBox>
+								<FilterBar>
+									<Button variant="outlined" onClick={handleOnAllCategoryClick} m="10px 0">
+										<Typography
+											sx={{
+												whiteSpace: 'nowrap',
+											}}
+										>
+											All Category
+										</Typography>
+									</Button>
+									<SearchBar variant="outlined" size="small">
+										<InputLabel htmlFor="outlined-adornment-search">Search</InputLabel>
+										<OutlinedInput
+											id="outlined-adornment-search"
+											type="text"
+											value={searchValue}
+											onChange={e => setSearchValue(e.target.value)}
+											endAdornment={
+												<InputAdornment position="end">
+													<IconButton
+														aria-label="toggle search"
+														edge="end"
+														onClick={handleOnSearchClick}
+													>
+														<SearchIcon />
+													</IconButton>
+												</InputAdornment>
+											}
+											label="Password"
+										/>
+									</SearchBar>
+								</FilterBar>
+								{coins.length > 0 ? (
+									<Box mt="20px" mb="20px">
+										<CoinTable
+											pagination={{
+												count: Math.ceil(allCoinsLength / coinsPerPage),
+												currentPage: coinsParams.coinsCurrentPage,
+												handleOnPaginationChange,
+											}}
+										/>
+									</Box>
+								) : (
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'stretch',
+										}}
+										mt="7vh"
+									>
+										<DataNotFound />
+									</Box>
+								)}
+							</TableBox>
 						</Box>
-
-						{coinsCurrentPage !== -1 ? (
-							<Box pb="20px">
-								<BasicPagination
-									count={Math.ceil(allCoinsLength / coinsPerPage)}
-									handleOnChange={handleOnPaginationChange}
-									currentPage={coinsCurrentPage}
-								/>
-							</Box>
-						) : (
-							<Box pb="20px">
-								<BasicPagination
-									count={Math.ceil(searchCoinIds?.length / coinsPerPage)}
-									handleOnChange={handleOnPaginationChangeWithSearch}
-									currentPage={parseInt(searchTermAndPage?.split(',')[1] || coinsCurrentPage)}
-								/>
-							</Box>
-						)}
-					</Box>
-				) : (
-					<Box
-						sx={{
-							minHeight: '90vh',
-							width: '100%',
-							display: 'flex',
-							justifyContent: 'center',
-							alignItems: 'center',
-							flexDirection: 'column',
-						}}
-						pt="7vh"
-					>
-						<DataNotFound />
-
-						<Button onClick={() => navigate(-1)}>Go Back</Button>
-					</Box>
-				)}
-			</Box>
-		</Container>
+					)}
+				</Box>
+			</Container>
+		</ThemeProvider>
 	);
 };
 
 export default Home;
+
+const TableBox = styled(Box)(({ theme }) => ({
+	width: '100%',
+	[theme.breakpoints.down('sm')]: {
+		padding: '0px',
+	},
+	[theme.breakpoints.up('sm')]: {
+		padding: '20px',
+	},
+}));
+
+const FilterBar = styled(Box)(({ theme }) => ({
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	justifyContent: 'space-between',
+	[theme.breakpoints.down('md')]: {
+		flexDirection: 'column-reverse',
+		alignItems: 'flex-start',
+	},
+	[theme.breakpoints.up('md')]: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+}));
+
+const SearchBar = styled(FormControl)(({ theme }) => ({
+	margin: '10px 0',
+	[theme.breakpoints.down('md')]: {
+		width: '100%',
+	},
+	[theme.breakpoints.up('md')]: {
+		width: '40%',
+	},
+}));
