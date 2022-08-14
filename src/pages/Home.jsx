@@ -37,20 +37,14 @@ const Home = () => {
 	const dispatch = useDispatch();
 
 	// let query = useQuery();
-	const {
-		coins,
-		searchCoinIds,
-		allCoinsLength,
-		coinsLoading,
-		allCoinsLengthLoading,
-		searchCoinIdsLoading,
-		searchCoinIdsSuccess,
-	} = useSelector(state => state.coins);
+	const { coins, searchCoinIds, allCoinsLength, coinsLoading, allCoinsLengthLoading, searchCoinIdsSuccess } =
+		useSelector(state => state.coins);
 	const { selectedCurrency } = useSelector(state => state.settings);
 
 	// const [coinsCategory, setCoinsCategory] = useState("");
 	const [coinsParams, setCoinsParams] = useState(initialCoinsParamsState);
 	const [searchValue, setSearchValue] = useState('');
+	const [isSearching, setIsSearching] = useState(false);
 
 	// get all coins length for pagination for all categories
 	useEffect(() => {
@@ -63,6 +57,12 @@ const Home = () => {
 		// always search from the first page
 		setCoinsParams({ coinIds: searchCoinIds, coinsCurrentPage: 1 });
 	}, [searchCoinIds, searchCoinIdsSuccess]);
+
+	// since getting coins has two steps, we need to wait for the both steps to finish and then display the table
+	useEffect(() => {
+		if (coinsLoading) return;
+		setIsSearching(false);
+	}, [coinsLoading]);
 
 	useEffect(() => {
 		const { coinsCurrentPage, coinIds } = coinsParams;
@@ -85,6 +85,7 @@ const Home = () => {
 
 	const handleOnSearchClick = () => {
 		dispatch(fetchSearchCoinIds(searchValue));
+		setIsSearching(true);
 	};
 
 	const handleOnAllCategoryClick = () => {
@@ -100,7 +101,7 @@ const Home = () => {
 		<ThemeProvider theme={responsiveFontSizesTheme}>
 			<Container maxWidth="xl">
 				<Box>
-					{allCoinsLengthLoading || searchCoinIdsLoading || coinsLoading ? (
+					{allCoinsLengthLoading || isSearching || coinsLoading ? (
 						<Loading height={'90vh'} width={'100%'} pt="7vh" />
 					) : (
 						<Box
