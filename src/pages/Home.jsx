@@ -96,89 +96,88 @@ const Home = () => {
 	};
 
 	return (
-		// evaluate loading first and then length of data
-
-		<Container
-			maxWidth="xl"
+		<Box
 			sx={{
 				backgroundColor: getAppBackgroundColor(selectedTheme),
 			}}
 		>
-			<Box>
-				{allCoinsLengthLoading || isSearching || coinsLoading ? (
-					<Loading height="calc(100vh - 70px)" width={'100%'} pt="7vh" />
-				) : (
-					<Box
-						sx={{
-							minHeight: 'calc(100vh - 70px)',
-							width: '100%',
-							overflow: 'hidden',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-						}}
-						pt="90px"
-					>
-						<TableBox>
-							<FilterBar>
-								<Button variant="outlined" onClick={handleOnAllCategoryClick} m="10px 0">
-									<Typography
+			<Container maxWidth="xl">
+				<Box>
+					{allCoinsLengthLoading || isSearching || coinsLoading ? (
+						<Loading height="calc(100vh - 70px)" width={'100%'} pt="7vh" />
+					) : (
+						<Box
+							sx={{
+								minHeight: 'calc(100vh - 70px)',
+								width: '100%',
+								overflow: 'hidden',
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
+							}}
+							pt="90px"
+						>
+							<TableBox>
+								<FilterBar>
+									<Button variant="outlined" onClick={handleOnAllCategoryClick} m="10px 0">
+										<Typography
+											sx={{
+												whiteSpace: 'nowrap',
+											}}
+										>
+											All Category
+										</Typography>
+									</Button>
+									<SearchBar variant="outlined" size="small">
+										<InputLabel htmlFor="outlined-adornment-search">Search</InputLabel>
+										<OutlinedInput
+											id="outlined-adornment-search"
+											type="text"
+											value={searchValue}
+											onChange={e => setSearchValue(e.target.value)}
+											endAdornment={
+												<InputAdornment position="end">
+													<IconButton
+														aria-label="toggle search"
+														edge="end"
+														onClick={handleOnSearchClick}
+													>
+														<SearchIcon />
+													</IconButton>
+												</InputAdornment>
+											}
+											label="Password"
+										/>
+									</SearchBar>
+								</FilterBar>
+								{coins.length > 0 ? (
+									<Box mt="20px" mb="20px">
+										<CoinTable
+											pagination={{
+												count: Math.ceil(allCoinsLength / coinsPerPage),
+												currentPage: coinsParams.coinsCurrentPage,
+												handleOnPaginationChange,
+											}}
+										/>
+									</Box>
+								) : (
+									<Box
 										sx={{
-											whiteSpace: 'nowrap',
+											display: 'flex',
+											justifyContent: 'center',
+											alignItems: 'stretch',
 										}}
+										mt="7vh"
 									>
-										All Category
-									</Typography>
-								</Button>
-								<SearchBar variant="outlined" size="small">
-									<InputLabel htmlFor="outlined-adornment-search">Search</InputLabel>
-									<OutlinedInput
-										id="outlined-adornment-search"
-										type="text"
-										value={searchValue}
-										onChange={e => setSearchValue(e.target.value)}
-										endAdornment={
-											<InputAdornment position="end">
-												<IconButton
-													aria-label="toggle search"
-													edge="end"
-													onClick={handleOnSearchClick}
-												>
-													<SearchIcon />
-												</IconButton>
-											</InputAdornment>
-										}
-										label="Password"
-									/>
-								</SearchBar>
-							</FilterBar>
-							{coins.length > 0 ? (
-								<Box mt="20px" mb="20px">
-									<CoinTable
-										pagination={{
-											count: Math.ceil(allCoinsLength / coinsPerPage),
-											currentPage: coinsParams.coinsCurrentPage,
-											handleOnPaginationChange,
-										}}
-									/>
-								</Box>
-							) : (
-								<Box
-									sx={{
-										display: 'flex',
-										justifyContent: 'center',
-										alignItems: 'stretch',
-									}}
-									mt="7vh"
-								>
-									<DataNotFound />
-								</Box>
-							)}
-						</TableBox>
-					</Box>
-				)}
-			</Box>
-		</Container>
+										<DataNotFound />
+									</Box>
+								)}
+							</TableBox>
+						</Box>
+					)}
+				</Box>
+			</Container>
+		</Box>
 	);
 };
 
